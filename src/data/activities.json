@@ -1,0 +1,10 @@
+[
+  { "id": "a1", "title": "Healthy Walking Group", "type": "Sports", "time": "2026-09-25 08:30", "location": "Central Park", "quota": 30, "booked": 0, "description": "Light walking with coach guidance." },
+  { "id": "a2", "title": "Blood Pressure Talk", "type": "Lecture", "time": "2026-09-26 10:00", "location": "Community Hall A", "quota": 50, "booked": 0, "description": "Daily management for hypertension." },
+  { "id": "a3", "title": "Nutrition Workshop", "type": "Workshop", "time": "2026-09-27 14:00", "location": "Community Hall B", "quota": 40, "booked": 0, "description": "Balanced diet for seniors." },
+  { "id": "a4", "title": "Tai Chi Morning", "type": "Sports", "time": "2026-09-28 07:30", "location": "West Square", "quota": 35, "booked": 0, "description": "Tai Chi for flexibility and balance." },
+  { "id": "a5", "title": "Fall Prevention Class", "type": "Lecture", "time": "2026-09-29 09:30", "location": "Clinic Room 2", "quota": 25, "booked": 0, "description": "Home safety and fall prevention tips." },
+  { "id": "a6", "title": "Volunteer Match Day", "type": "Community", "time": "2026-09-30 15:00", "location": "Service Center", "quota": 20, "booked": 0, "description": "Meet volunteers and service staff." },
+  { "id": "a7", "title": "Sleep Health Seminar", "type": "Lecture", "time": "2026-10-01 10:30", "location": "Community Hall C", "quota": 45, "booked": 0, "description": "Improve sleep quality naturally." },
+  { "id": "a8", "title": "Gentle Stretch Class", "type": "Sports", "time": "2026-10-02 08:00", "location": "East Garden", "quota": 30, "booked": 0, "description": "Simple daily stretching routine." }
+]

@@ -1,0 +1,46 @@
+@media (max-width: 575.98px) {
+  .container {
+    width: 96%;
+  }
+
+  .main-content {
+    padding: 12px 0 18px;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 768px) {
+  .container {
+    width: 95%;
+  }
+
+  .main-content {
+    padding: 14px 0 20px;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1200px) {
+  .container {
+    width: 94%;
+    max-width: 1160px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .container {
+    width: min(1400px, 92%);
+  }
+
+  .main-content {
+    padding-top: 20px;
+  }
+}

@@ -1,0 +1,6 @@
+[
+  { "id": "s1", "name": "Home Cleaning Assistance", "type": "Home Support", "description": "Light home cleaning for seniors with mobility challenges." },
+  { "id": "s2", "name": "Medical Accompaniment", "type": "Health Support", "description": "Volunteer accompaniment for clinic visits." },
+  { "id": "s3", "name": "Meal Delivery", "type": "Nutrition Support", "description": "Daily nutritious meal support to your home." },
+  { "id": "s4", "name": "Home Care Visit", "type": "Care Support", "description": "Basic home care and wellness check visits." }
+]

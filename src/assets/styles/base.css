@@ -1,0 +1,78 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: var(--fs-base);
+}
+
+a { text-decoration: none; color: inherit; }
+
+.container {
+  width: min(1400px, 94%);
+  margin: 0 auto;
+}
+
+.main-content {
+  min-height: calc(100vh - 148px);
+  padding: 16px 0 24px;
+}
+
+.page-enter-active, .page-leave-active { transition: all .25s ease; }
+.page-enter-from { opacity: 0; transform: translateY(10px); }
+.page-leave-to { opacity: 0; transform: translateY(-8px); }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+button, .btn {
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  min-height: var(--ctrl-h);
+  padding: 0 var(--ctrl-px);
+  font-size: var(--fs-btn);
+  font-weight: 700;
+  line-height: 1.1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-pill-dark { background: var(--dark-pill); border-color: var(--dark-pill); color: #fff; }
+.btn-pill-dark:hover { background: var(--dark-pill-hover); }
+.btn-pill-light { background: #d1d5db; color: #111827; }
+
+.form-control {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #9ca3af;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 1em;
+  background: #fff;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.form-item { margin-bottom: 10px; }
+
+.error-text {
+  color: #b91c1c;
+  margin: 6px 0 0;
+  font-size: .92em;
+}
+
+.site-header { background: #fff; border-bottom: 1px solid var(--line); }
+.site-footer { border-top: 1px solid var(--line); background: #e5e7eb; }

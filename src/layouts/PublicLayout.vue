@@ -1,0 +1,28 @@
+<script setup>
+import { onMounted } from 'vue'
+import AppHeader from '@/components/common/AppHeader.vue'
+import AppFooter from '@/components/common/AppFooter.vue'
+import { useAuthStore } from '@/stores/auth'
+import { useUiStore } from '@/stores/ui'
+import { useAppDataStore } from '@/stores/appData'
+
+const auth = useAuthStore()
+const ui = useUiStore()
+const app = useAppDataStore()
+
+onMounted(() => {
+  ui.hydrate()
+  auth.hydrate?.()
+  app.hydrate?.()
+})
+</script>
+
+<template>
+  <div>
+    <AppHeader />
+    <main class="container main-content">
+      <router-view />
+    </main>
+    <AppFooter />
+  </div>
+</template>
