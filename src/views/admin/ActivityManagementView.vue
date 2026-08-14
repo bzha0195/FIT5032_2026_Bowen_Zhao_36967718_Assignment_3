@@ -2,6 +2,7 @@
 import { computed, reactive } from 'vue'
 import { useAppDataStore } from '@/stores/appData'
 import { load } from '@/utils/storage'
+import InteractiveDataTable from '@/components/admin/InteractiveDataTable.vue'
 
 const USERS_KEY = 'silver_users'
 
@@ -20,6 +21,15 @@ const form = reactive({
 
 const activities = computed(() => appData.activities || [])
 
+const signupColumns = [
+  { key: 'name', label: 'Name' },
+  { key: 'phone', label: 'Phone' },
+  { key: 'email', label: 'Email' },
+  { key: 'activityTitle', label: 'Activity' },
+  { key: 'status', label: 'Status' },
+  { key: 'createdAt', label: 'Booked at' }
+]
+
 const signupRows = computed(() => {
   const users = load(USERS_KEY, [])
   const userMap = new Map((users || []).map(u => [u.id, u]))
@@ -33,7 +43,9 @@ const signupRows = computed(() => {
       name: u.name || '-',
       phone: u.phone || '-',
       email: u.email || '-',
-      activityTitle: a.title || '-'
+      activityTitle: a.title || '-',
+      status: b.status || '-',
+      createdAt: b.createdAt ? new Date(b.createdAt).toLocaleString() : '-'
     }
   })
 })
@@ -161,28 +173,8 @@ function removeActivity(id) {
 
     <div class="block signup-block">
       <h4>Activity Signups</h4>
-      <p class="meta">Total: {{ signupRows.length }}</p>
-
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Email</th>
-              <th>Activity</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in signupRows" :key="row.id">
-              <td>{{ row.name }}</td>
-              <td>{{ row.phone }}</td>
-              <td>{{ row.email }}</td>
-              <td>{{ row.activityTitle }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <p class="meta">Search each column, click a heading to sort, and use pagination to view up to 10 records at a time.</p>
+      <InteractiveDataTable :columns="signupColumns" :rows="signupRows" empty-message="No activity signups found." />
     </div>
   </section>
 </template>
@@ -209,8 +201,4 @@ function removeActivity(id) {
 }
 
 .signup-block { margin-top: 12px; }
-.table-wrap { overflow:auto; }
-.table { width:100%; border-collapse:collapse; }
-.table th, .table td { border:1px solid #e5e7eb; padding:8px; text-align:left; }
-.table th { background:#f8fafc; }
 </style>

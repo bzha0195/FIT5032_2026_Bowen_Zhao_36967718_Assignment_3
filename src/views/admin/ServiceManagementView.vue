@@ -2,6 +2,7 @@
 import { computed, reactive } from 'vue'
 import { useAppDataStore } from '@/stores/appData'
 import { load } from '@/utils/storage'
+import InteractiveDataTable from '@/components/admin/InteractiveDataTable.vue'
 
 const USERS_KEY = 'silver_users'
 
@@ -15,6 +16,17 @@ const form = reactive({
 })
 
 const services = computed(() => appData.services || [])
+
+const serviceSignupColumns = [
+  { key: 'name', label: 'Name' },
+  { key: 'phone', label: 'Phone' },
+  { key: 'email', label: 'Email' },
+  { key: 'projectName', label: 'Service' },
+  { key: 'time', label: 'Visit time' },
+  { key: 'address', label: 'Address' },
+  { key: 'additionalNote', label: 'Additional note' },
+  { key: 'status', label: 'Status' }
+]
 
 function formatDateTime(v) {
   if (!v) return '-'
@@ -54,7 +66,8 @@ const serviceSignupRows = computed(() => {
       projectName,
       time: formatDateTime(timeRaw),
       address,
-      additionalNote
+      additionalNote,
+      status: c.status || '-'
     }
   })
 })
@@ -144,35 +157,9 @@ function removeService(id) {
     </div>
 
     <div class="block signup-block">
-      <h4>Service Signups</h4>
-      <p class="meta">Total: {{ serviceSignupRows.length }}</p>
-
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Email</th>
-              <th>Activity Name</th>
-              <th>Time</th>
-              <th>Address</th>
-              <th>Additional Note</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in serviceSignupRows" :key="row.id">
-              <td>{{ row.name }}</td>
-              <td>{{ row.phone }}</td>
-              <td>{{ row.email }}</td>
-              <td>{{ row.projectName }}</td>
-              <td>{{ row.time }}</td>
-              <td>{{ row.address }}</td>
-              <td>{{ row.additionalNote }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <h4>Service Applications</h4>
+      <p class="meta">Search each column, click a heading to sort, and use pagination to view up to 10 records at a time.</p>
+      <InteractiveDataTable :columns="serviceSignupColumns" :rows="serviceSignupRows" empty-message="No service applications found." />
     </div>
   </section>
 </template>
@@ -185,8 +172,4 @@ function removeService(id) {
 .list li:last-child { border-bottom:none; }
 .title { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .signup-block { margin-top: 12px; }
-.table-wrap { overflow:auto; }
-.table { width:100%; border-collapse:collapse; }
-.table th, .table td { border:1px solid #e5e7eb; padding:8px; text-align:left; white-space: nowrap; }
-.table th { background:#f8fafc; }
 </style>
