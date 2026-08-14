@@ -114,28 +114,28 @@ async function submitFirebase() {
   <section class="login-page">
     <div class="login-card">
       <div class="form-item">
-        <label class="form-label">Account Number</label>
-        <input class="form-control thick" v-model="form.account" placeholder="Enter Account Number" />
-        <p v-if="errors.account" class="error-text">{{ errors.account }}</p>
+        <label class="form-label" for="login-account">Account Number</label>
+        <input id="login-account" class="form-control thick" v-model="form.account" autocomplete="username" placeholder="Enter Account Number" :aria-invalid="!!errors.account" aria-describedby="login-account-error" />
+        <p v-if="errors.account" id="login-account-error" class="error-text" role="alert">{{ errors.account }}</p>
       </div>
 
       <div class="form-item">
-        <label class="form-label">Password</label>
-        <input class="form-control thick" type="password" v-model="form.password" placeholder="Enter Password" />
-        <p v-if="errors.password" class="error-text">{{ errors.password }}</p>
+        <label class="form-label" for="login-password">Password</label>
+        <input id="login-password" class="form-control thick" type="password" v-model="form.password" autocomplete="current-password" placeholder="Enter Password" :aria-invalid="!!errors.password" aria-describedby="login-password-error" />
+        <p v-if="errors.password" id="login-password-error" class="error-text" role="alert">{{ errors.password }}</p>
       </div>
 
       <div class="form-item">
-        <label class="form-label">Choose Your Role</label>
-        <div class="role-row">
-          <button type="button" class="role-btn" :class="{ active: form.role === 'user' }" @click="form.role = 'user'">
+        <p id="login-role-label" class="form-label">Choose Your Role</p>
+        <div class="role-row" role="radiogroup" aria-labelledby="login-role-label">
+          <button type="button" role="radio" :aria-checked="form.role === 'user'" class="role-btn" :class="{ active: form.role === 'user' }" @click="form.role = 'user'">
             Elderly User
           </button>
-          <button type="button" class="role-btn" :class="{ active: form.role === 'admin' }" @click="form.role = 'admin'">
+          <button type="button" role="radio" :aria-checked="form.role === 'admin'" class="role-btn" :class="{ active: form.role === 'admin' }" @click="form.role = 'admin'">
             Administrator
           </button>
         </div>
-        <p v-if="errors.role" class="error-text">{{ errors.role }}</p>
+        <p v-if="errors.role" class="error-text" role="alert">{{ errors.role }}</p>
       </div>
 
       <button type="button" class="login-btn" @click="submit">Login</button>
@@ -146,7 +146,7 @@ async function submitFirebase() {
         <router-link class="half-btn link-btn" to="/auth/register">Create New Account</router-link>
       </div>
 
-      <p v-if="errors.common" class="error-text">{{ errors.common }}</p>
+      <p v-if="errors.common" class="error-text" role="alert">{{ errors.common }}</p>
     </div>
   </section>
 </template>

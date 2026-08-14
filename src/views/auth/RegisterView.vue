@@ -101,39 +101,39 @@ async function submit() {
 
     <div class="grid-2">
       <div class="form-item">
-        <label class="form-label">Name</label>
-        <input class="form-control" v-model="form.name" placeholder="Enter Your Name" />
-        <p v-if="err.name" class="error-text">{{ err.name }}</p>
+        <label class="form-label" for="register-name">Name</label>
+        <input id="register-name" class="form-control" v-model="form.name" autocomplete="name" placeholder="Enter Your Name" :aria-invalid="!!err.name" aria-describedby="register-name-error" />
+        <p v-if="err.name" id="register-name-error" class="error-text" role="alert">{{ err.name }}</p>
       </div>
 
       <div class="form-item">
-        <label class="form-label">Age</label>
-        <input class="form-control" type="number" v-model="form.age" placeholder="Enter Your Age" />
-        <p v-if="err.age" class="error-text">{{ err.age }}</p>
+        <label class="form-label" for="register-age">Age</label>
+        <input id="register-age" class="form-control" type="number" v-model="form.age" placeholder="Enter Your Age" :aria-invalid="!!err.age" aria-describedby="register-age-error" />
+        <p v-if="err.age" id="register-age-error" class="error-text" role="alert">{{ err.age }}</p>
       </div>
 
       <div class="form-item">
-        <label class="form-label">Phone</label>
-        <input class="form-control" v-model="form.phone" placeholder="Enter Phone Number" />
-        <p v-if="err.phone" class="error-text">{{ err.phone }}</p>
+        <label class="form-label" for="register-phone">Phone</label>
+        <input id="register-phone" class="form-control" v-model="form.phone" autocomplete="tel" placeholder="Enter Phone Number" :aria-invalid="!!err.phone" aria-describedby="register-phone-error" />
+        <p v-if="err.phone" id="register-phone-error" class="error-text" role="alert">{{ err.phone }}</p>
       </div>
 
       <div class="form-item">
-        <label class="form-label">Email</label>
-        <input class="form-control" v-model="form.email" placeholder="Enter Email Address" />
-        <p v-if="err.email" class="error-text">{{ err.email }}</p>
+        <label class="form-label" for="register-email">Email</label>
+        <input id="register-email" class="form-control" v-model="form.email" autocomplete="email" placeholder="Enter Email Address" :aria-invalid="!!err.email" aria-describedby="register-email-error" />
+        <p v-if="err.email" id="register-email-error" class="error-text" role="alert">{{ err.email }}</p>
       </div>
 
       <div class="form-item">
-        <label class="form-label">Password</label>
-        <input class="form-control" type="password" v-model="form.password" placeholder="Enter Password" />
-        <p v-if="err.password" class="error-text">{{ err.password }}</p>
+        <label class="form-label" for="register-password">Password</label>
+        <input id="register-password" class="form-control" type="password" v-model="form.password" autocomplete="new-password" placeholder="Enter Password" :aria-invalid="!!err.password" aria-describedby="register-password-error" />
+        <p v-if="err.password" id="register-password-error" class="error-text" role="alert">{{ err.password }}</p>
       </div>
 
       <div class="form-item">
-        <label class="form-label">Confirm Password</label>
-        <input class="form-control" type="password" v-model="form.confirm" placeholder="Confirm Password" />
-        <p v-if="err.confirm" class="error-text">{{ err.confirm }}</p>
+        <label class="form-label" for="register-confirm">Confirm Password</label>
+        <input id="register-confirm" class="form-control" type="password" v-model="form.confirm" autocomplete="new-password" placeholder="Confirm Password" :aria-invalid="!!err.confirm" aria-describedby="register-confirm-error" />
+        <p v-if="err.confirm" id="register-confirm-error" class="error-text" role="alert">{{ err.confirm }}</p>
       </div>
     </div>
 
@@ -150,10 +150,10 @@ async function submit() {
         </label>
       </div>
       <p class="hint">{{ ageHint }}</p>
-      <p v-if="err.role" class="error-text">{{ err.role }}</p>
+      <p v-if="err.role" class="error-text" role="alert">{{ err.role }}</p>
     </div>
 
-    <p v-if="err.common" class="error-text">{{ err.common }}</p>
+    <p v-if="err.common" class="error-text" role="alert">{{ err.common }}</p>
 
     <div class="bottom-actions">
       <button type="button" class="sub-btn primary" @click="submit">Register</button>

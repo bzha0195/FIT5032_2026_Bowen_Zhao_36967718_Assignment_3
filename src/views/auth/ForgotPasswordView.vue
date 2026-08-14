@@ -75,27 +75,27 @@ async function submit() {
       <h2 class="title">Forgot Password</h2>
 
       <div class="form-item">
-        <label class="form-label">Name</label>
-        <input class="form-control thick" v-model="form.name" placeholder="Enter Your Name" />
-        <p v-if="err.name" class="error-text">{{ err.name }}</p>
+        <label class="form-label" for="reset-name">Name</label>
+        <input id="reset-name" class="form-control thick" v-model="form.name" autocomplete="name" placeholder="Enter Your Name" :aria-invalid="!!err.name" aria-describedby="reset-name-error" />
+        <p v-if="err.name" id="reset-name-error" class="error-text" role="alert">{{ err.name }}</p>
       </div>
 
       <div class="form-item">
-        <label class="form-label">Account (Phone or Email)</label>
-        <input class="form-control thick" v-model="form.account" placeholder="Enter Phone or Email" />
-        <p v-if="err.account" class="error-text">{{ err.account }}</p>
+        <label class="form-label" for="reset-account">Account (Phone or Email)</label>
+        <input id="reset-account" class="form-control thick" v-model="form.account" autocomplete="username" placeholder="Enter Phone or Email" :aria-invalid="!!err.account" aria-describedby="reset-account-error" />
+        <p v-if="err.account" id="reset-account-error" class="error-text" role="alert">{{ err.account }}</p>
       </div>
 
       <div class="form-item">
-        <label class="form-label">New Password</label>
-        <input class="form-control thick" type="password" v-model="form.password" placeholder="Enter New Password" />
-        <p v-if="err.password" class="error-text">{{ err.password }}</p>
+        <label class="form-label" for="reset-password">New Password</label>
+        <input id="reset-password" class="form-control thick" type="password" v-model="form.password" autocomplete="new-password" placeholder="Enter New Password" :aria-invalid="!!err.password" aria-describedby="reset-password-error" />
+        <p v-if="err.password" id="reset-password-error" class="error-text" role="alert">{{ err.password }}</p>
       </div>
 
       <div class="form-item">
-        <label class="form-label">Confirm Password</label>
-        <input class="form-control thick" type="password" v-model="form.confirm" placeholder="Confirm New Password" />
-        <p v-if="err.confirm" class="error-text">{{ err.confirm }}</p>
+        <label class="form-label" for="reset-confirm">Confirm Password</label>
+        <input id="reset-confirm" class="form-control thick" type="password" v-model="form.confirm" autocomplete="new-password" placeholder="Confirm New Password" :aria-invalid="!!err.confirm" aria-describedby="reset-confirm-error" />
+        <p v-if="err.confirm" id="reset-confirm-error" class="error-text" role="alert">{{ err.confirm }}</p>
       </div>
 
       <div class="bottom-actions">
@@ -103,7 +103,7 @@ async function submit() {
         <router-link class="sub-btn" to="/auth/login">Back to Login</router-link>
       </div>
 
-      <p v-if="err.common" class="error-text">{{ err.common }}</p>
+      <p v-if="err.common" class="error-text" role="alert">{{ err.common }}</p>
     </div>
   </section>
 </template>

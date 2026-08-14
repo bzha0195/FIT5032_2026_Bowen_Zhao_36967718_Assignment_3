@@ -14,6 +14,7 @@ import HealthInfoView from '@/views/user/HealthInfoView.vue'
 import ActivitiesView from '@/views/user/ActivitiesView.vue'
 import CareServiceView from '@/views/user/CareServiceView.vue'
 import PersonalCenterView from '@/views/user/PersonalCenterView.vue'
+import CloudRatingSummaryView from '@/views/user/CloudRatingSummaryView.vue'
 
 import AdminDashboardView from '@/views/admin/AdminDashboardView.vue'
 import UserManagementView from '@/views/admin/UserManagementView.vue'
@@ -32,6 +33,7 @@ const routes = [
       { path: 'activities', name: 'activities', component: ActivitiesView },
       { path: 'care', name: 'care', component: CareServiceView },
       { path: 'me', name: 'me', component: PersonalCenterView, meta: { requiresAuth: true } },
+      { path: 'cloud-rating-summary', name: 'cloud-rating-summary', component: CloudRatingSummaryView },
 
       { path: '/auth/login', name: 'login', component: LoginView, meta: { guestOnly: true } },
       { path: '/auth/register', name: 'register', component: RegisterView, meta: { guestOnly: true } },

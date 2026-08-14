@@ -20,7 +20,7 @@ onMounted(() => {
 <template>
   <div>
     <AppHeader />
-    <main class="container main-content">
+    <main id="main-content" class="container main-content" tabindex="-1">
       <router-view />
     </main>
     <AppFooter />

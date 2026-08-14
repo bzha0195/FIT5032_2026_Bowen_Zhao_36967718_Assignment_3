@@ -26,14 +26,14 @@ onBeforeUnmount(() => document.removeEventListener('click', clickOutside))
 
 <template>
   <div class="fs-wrap" ref="rootRef">
-    <button class="pill dark fs-main" type="button" @click="toggle">
+    <button class="pill dark fs-main" type="button" aria-haspopup="menu" :aria-expanded="open" aria-controls="font-size-menu" @click="toggle">
       Fontsize
     </button>
 
-    <div v-if="open" class="fs-menu">
-      <button type="button" class="fs-item" :class="{ active: ui.fontSize === 'small' }" @click="setSize('small')">A</button>
-      <button type="button" class="fs-item" :class="{ active: ui.fontSize === 'medium' }" @click="setSize('medium')">A+</button>
-      <button type="button" class="fs-item" :class="{ active: ui.fontSize === 'large' }" @click="setSize('large')">A++</button>
+    <div v-if="open" id="font-size-menu" class="fs-menu" role="menu" aria-label="Font size options">
+      <button type="button" class="fs-item" role="menuitemradio" :aria-checked="ui.fontSize === 'small'" :class="{ active: ui.fontSize === 'small' }" @click="setSize('small')">A</button>
+      <button type="button" class="fs-item" role="menuitemradio" :aria-checked="ui.fontSize === 'medium'" :class="{ active: ui.fontSize === 'medium' }" @click="setSize('medium')">A+</button>
+      <button type="button" class="fs-item" role="menuitemradio" :aria-checked="ui.fontSize === 'large'" :class="{ active: ui.fontSize === 'large' }" @click="setSize('large')">A++</button>
     </div>
   </div>
 </template>

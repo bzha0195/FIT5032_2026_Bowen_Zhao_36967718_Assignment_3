@@ -72,9 +72,11 @@ watch([filteredRows, totalPages], () => {
       <table class="data-table">
         <thead>
           <tr>
-            <th v-for="column in columns" :key="column.key" :class="{ sortable: column.sortable !== false }" @click="setSort(column)">
-              {{ column.label }}
-              <span v-if="sortKey === column.key" aria-hidden="true">{{ sortDirection === 'asc' ? ' ▲' : ' ▼' }}</span>
+            <th v-for="column in columns" :key="column.key">
+              <button class="sort-button" type="button" :disabled="column.sortable === false" @click="setSort(column)">
+                {{ column.label }}
+                <span v-if="sortKey === column.key" aria-hidden="true">{{ sortDirection === 'asc' ? ' ▲' : ' ▼' }}</span>
+              </button>
             </th>
           </tr>
         </thead>
@@ -111,8 +113,9 @@ watch([filteredRows, totalPages], () => {
 .data-table { width: 100%; min-width: 700px; border-collapse: collapse; }
 .data-table th, .data-table td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; text-align: left; vertical-align: middle; }
 .data-table th { background: #f8fafc; white-space: nowrap; }
-.data-table th.sortable { cursor: pointer; user-select: none; }
-.data-table th.sortable:hover { background: #eef2f7; }
+.sort-button { border: 0; background: transparent; color: inherit; font: inherit; font-weight: 700; padding: 0; cursor: pointer; text-align: left; }
+.sort-button:hover:not(:disabled) { color: #1d4ed8; }
+.sort-button:disabled { opacity: 1; cursor: default; }
 .data-table tbody tr:last-child td { border-bottom: 0; }
 .empty { text-align: center !important; color: #64748b; }
 .pagination { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: #64748b; font-size: .9rem; flex-wrap: wrap; }

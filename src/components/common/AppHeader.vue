@@ -23,11 +23,6 @@ function isActive(link) {
   return route.path === link.to || route.path.startsWith(link.to + '/')
 }
 
-function goAccount() {
-  if (!auth.user) return router.push('/auth/login')
-  router.push(auth.user.role === 'admin' ? '/admin' : '/me')
-}
-
 function onRightButtonClick() {
   if (!auth.user) return router.push('/auth/login')
   auth.logout()
@@ -37,6 +32,7 @@ function onRightButtonClick() {
 
 <template>
   <header class="site-header">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <div class="container nav-wrap" v-if="!isAdmin">
       <div class="left-zone">
         <FontSizeSwitcher />
@@ -48,7 +44,7 @@ function onRightButtonClick() {
         </button>
       </div>
 
-      <nav class="center-nav desktop-nav">
+      <nav class="center-nav desktop-nav" aria-label="Main navigation">
         <RouterLink
           v-for="link in navLinks"
           :key="link.to"
@@ -60,7 +56,7 @@ function onRightButtonClick() {
         </RouterLink>
       </nav>
 
-      <nav class="center-nav nav-576-768">
+      <nav class="center-nav nav-576-768" aria-label="Main navigation">
         <div class="row3">
           <RouterLink to="/" class="nav-link" :class="{ active: route.path === '/' }">Home</RouterLink>
           <RouterLink to="/health" class="nav-link" :class="{ active: route.path === '/health' || route.path.startsWith('/health/') }">Health Information</RouterLink>
@@ -72,7 +68,7 @@ function onRightButtonClick() {
         </div>
       </nav>
 
-      <nav class="center-nav nav-lt-576">
+      <nav class="center-nav nav-lt-576" aria-label="Main navigation">
         <div class="row2">
           <RouterLink to="/" class="nav-link" :class="{ active: route.path === '/' }">Home</RouterLink>
           <RouterLink to="/health" class="nav-link" :class="{ active: route.path === '/health' || route.path.startsWith('/health/') }">Health Information</RouterLink>
@@ -92,7 +88,7 @@ function onRightButtonClick() {
         <FontSizeSwitcher />
       </div>
 
-      <nav class="center-nav desktop-nav">
+      <nav class="center-nav desktop-nav" aria-label="Administrator navigation">
         <RouterLink to="/admin" class="nav-link" :class="{ active: route.path === '/admin' || route.path.startsWith('/admin/') }">Dashboard</RouterLink>
         <RouterLink to="/admin/users" class="nav-link" :class="{ active: route.path === '/admin/users' || route.path.startsWith('/admin/users/') }">Users</RouterLink>
         <RouterLink to="/admin/contents" class="nav-link" :class="{ active: route.path === '/admin/contents' || route.path.startsWith('/admin/contents/') }">Content</RouterLink>
@@ -111,6 +107,8 @@ function onRightButtonClick() {
 </template>
 
 <style scoped>
+.skip-link { position: absolute; left: 12px; top: -60px; z-index: 100; background: #111827; color: #fff; padding: 10px 14px; border-radius: 6px; font-weight: 700; }
+.skip-link:focus { top: 12px; }
 .nav-wrap {
   min-height: calc(var(--ctrl-h) + 26px);
   display: grid;

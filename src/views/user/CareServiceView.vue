@@ -82,25 +82,33 @@ function submitRating(serviceId) {
         <p>{{ s.description }}</p>
 
         <div class="form-item">
-          <input class="form-control" v-model="forms[s.id].name" placeholder="Name" @blur="validate(s.id)" />
-          <p class="error-text">{{ errorsMap[s.id].name }}</p>
+          <label class="form-label" :for="`care-name-${s.id}`">Name</label>
+          <input :id="`care-name-${s.id}`" class="form-control" v-model="forms[s.id].name" autocomplete="name" placeholder="Name" :aria-invalid="!!errorsMap[s.id].name" :aria-describedby="`care-name-error-${s.id}`" @blur="validate(s.id)" />
+          <p :id="`care-name-error-${s.id}`" class="error-text" role="alert">{{ errorsMap[s.id].name }}</p>
 
-          <input class="form-control" v-model="forms[s.id].phone" placeholder="Phone" @blur="validate(s.id)" />
-          <p class="error-text">{{ errorsMap[s.id].phone }}</p>
+          <label class="form-label" :for="`care-phone-${s.id}`">Phone</label>
+          <input :id="`care-phone-${s.id}`" class="form-control" v-model="forms[s.id].phone" autocomplete="tel" placeholder="Phone" :aria-invalid="!!errorsMap[s.id].phone" :aria-describedby="`care-phone-error-${s.id}`" @blur="validate(s.id)" />
+          <p :id="`care-phone-error-${s.id}`" class="error-text" role="alert">{{ errorsMap[s.id].phone }}</p>
 
-          <input class="form-control" v-model="forms[s.id].address" placeholder="Address" @blur="validate(s.id)" />
-          <p class="error-text">{{ errorsMap[s.id].address }}</p>
+          <label class="form-label" :for="`care-address-${s.id}`">Address</label>
+          <input :id="`care-address-${s.id}`" class="form-control" v-model="forms[s.id].address" autocomplete="street-address" placeholder="Address" :aria-invalid="!!errorsMap[s.id].address" :aria-describedby="`care-address-error-${s.id}`" @blur="validate(s.id)" />
+          <p :id="`care-address-error-${s.id}`" class="error-text" role="alert">{{ errorsMap[s.id].address }}</p>
 
+          <label class="form-label" :for="`care-time-${s.id}`">Preferred visit time</label>
           <input
+            :id="`care-time-${s.id}`"
             class="form-control"
             type="datetime-local"
             lang="en"
             v-model="forms[s.id].visitTime"
+            :aria-invalid="!!errorsMap[s.id].visitTime"
+            :aria-describedby="`care-time-error-${s.id}`"
             @blur="validate(s.id)"
           />
-          <p class="error-text">{{ errorsMap[s.id].visitTime }}</p>
+          <p :id="`care-time-error-${s.id}`" class="error-text" role="alert">{{ errorsMap[s.id].visitTime }}</p>
 
-          <textarea class="form-control" v-model="forms[s.id].note" placeholder="Additional note"></textarea>
+          <label class="form-label" :for="`care-note-${s.id}`">Additional note</label>
+          <textarea :id="`care-note-${s.id}`" class="form-control" v-model="forms[s.id].note" placeholder="Additional note"></textarea>
           <button class="btn-primary" @click="apply(s.id)">Submit Application</button>
         </div>
 

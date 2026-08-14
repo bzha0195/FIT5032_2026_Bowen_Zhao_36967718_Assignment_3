@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import { load } from '@/utils/storage'
 import { sendEmailWithAttachment } from '@/utils/email'
 import InteractiveDataTable from '@/components/admin/InteractiveDataTable.vue'
+import { exportCsv } from '@/utils/exportCsv'
 
 const USERS_KEY = 'silver_users'
 const auth = useAuthStore()
@@ -29,6 +30,8 @@ const userColumns = [
   { key: 'actions', label: 'Email action', searchable: false, sortable: false }
 ]
 
+const userExportColumns = userColumns.filter((column) => column.key !== 'actions')
+
 function refresh() {
   version.value++
 }
@@ -51,6 +54,10 @@ function selectRecipient(user) {
   emailForm.subject = 'Update from Silver Health Charity'
   emailForm.message = `Hello ${user.name || ''},\n\n`
   document.getElementById('email-composer')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+function exportUsers() {
+  exportCsv('registered-users.csv', userExportColumns, registeredUsers.value)
 }
 
 function readAttachment(event) {
@@ -116,7 +123,7 @@ async function sendEmail() {
     </div>
 
     <div class="block">
-      <h4>Registered Users</h4>
+      <div class="section-heading"><h4>Registered Users</h4><button class="btn btn-pill-light" @click="exportUsers">Export CSV</button></div>
       <p class="meta">Search each column, click a heading to sort, and use pagination to view up to 10 records at a time.</p>
       <InteractiveDataTable :columns="userColumns" :rows="registeredUsers" empty-message="No registered users found.">
         <template #cell-actions="{ row }"><button class="btn btn-pill-light" @click="selectRecipient(row)">Compose email</button></template>
@@ -141,6 +148,8 @@ async function sendEmail() {
 <style scoped>
 .wire { display: grid; gap: 14px; }
 .block { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; }
+.section-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.section-heading h4 { margin: 0; }
 .meta, .empty-pending { color: #64748b; margin: 0 0 10px; }
 .pending-list { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
 .pending-row { display: grid; grid-template-columns: 1fr .5fr 1fr 1.25fr 1.4fr; gap: 8px; padding: 10px 12px; border-top: 1px solid #f1f5f9; align-items: center; }

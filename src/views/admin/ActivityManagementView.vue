@@ -3,6 +3,7 @@ import { computed, reactive } from 'vue'
 import { useAppDataStore } from '@/stores/appData'
 import { load } from '@/utils/storage'
 import InteractiveDataTable from '@/components/admin/InteractiveDataTable.vue'
+import { exportCsv } from '@/utils/exportCsv'
 
 const USERS_KEY = 'silver_users'
 
@@ -111,6 +112,10 @@ function removeActivity(id) {
 
   if (typeof appData.persist === 'function') appData.persist()
 }
+
+function exportSignups() {
+  exportCsv('activity-signups.csv', signupColumns, signupRows.value)
+}
 </script>
 
 <template>
@@ -172,7 +177,7 @@ function removeActivity(id) {
     </div>
 
     <div class="block signup-block">
-      <h4>Activity Signups</h4>
+      <div class="section-heading"><h4>Activity Signups</h4><button class="btn btn-pill-light" @click="exportSignups">Export CSV</button></div>
       <p class="meta">Search each column, click a heading to sort, and use pagination to view up to 10 records at a time.</p>
       <InteractiveDataTable :columns="signupColumns" :rows="signupRows" empty-message="No activity signups found." />
     </div>
@@ -181,6 +186,8 @@ function removeActivity(id) {
 
 <style scoped>
 .block { border:1px solid #d1d5db; border-radius:10px; padding:12px; background:#fff; }
+.section-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.section-heading h4 { margin:0; }
 .meta { margin:0 0 8px; color:#6b7280; }
 .list { list-style:none; margin:0; padding:0; }
 .list li {

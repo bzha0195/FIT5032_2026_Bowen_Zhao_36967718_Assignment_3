@@ -3,6 +3,7 @@ import { computed, reactive } from 'vue'
 import { useAppDataStore } from '@/stores/appData'
 import { load } from '@/utils/storage'
 import InteractiveDataTable from '@/components/admin/InteractiveDataTable.vue'
+import { exportCsv } from '@/utils/exportCsv'
 
 const USERS_KEY = 'silver_users'
 
@@ -116,6 +117,10 @@ function removeService(id) {
 
   alert('Service deleted successfully.')
 }
+
+function exportApplications() {
+  exportCsv('service-applications.csv', serviceSignupColumns, serviceSignupRows.value)
+}
 </script>
 
 <template>
@@ -157,7 +162,7 @@ function removeService(id) {
     </div>
 
     <div class="block signup-block">
-      <h4>Service Applications</h4>
+      <div class="section-heading"><h4>Service Applications</h4><button class="btn btn-pill-light" @click="exportApplications">Export CSV</button></div>
       <p class="meta">Search each column, click a heading to sort, and use pagination to view up to 10 records at a time.</p>
       <InteractiveDataTable :columns="serviceSignupColumns" :rows="serviceSignupRows" empty-message="No service applications found." />
     </div>
@@ -166,6 +171,8 @@ function removeService(id) {
 
 <style scoped>
 .block { border:1px solid #d1d5db; border-radius:10px; padding:12px; background:#fff; }
+.section-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.section-heading h4 { margin:0; }
 .meta { margin: 0 0 8px; color:#6b7280; }
 .list { list-style:none; margin:0; padding:0; }
 .list li { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e5e7eb; padding:10px 0; gap:12px; }

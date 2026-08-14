@@ -10,6 +10,13 @@ body {
 
 a { text-decoration: none; color: inherit; }
 
+:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 3px;
+}
+
+button:disabled { cursor: not-allowed; opacity: .65; }
+
 .container {
   width: min(1400px, 94%);
   margin: 0 auto;

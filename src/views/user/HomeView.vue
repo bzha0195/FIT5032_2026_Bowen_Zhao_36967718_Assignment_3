@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 import { useAppDataStore } from '@/stores/appData'
+import CommunityMap from '@/components/common/CommunityMap.vue'
 
 const data = useAppDataStore()
 onMounted(() => data.hydrate())
@@ -50,6 +51,8 @@ const tips = computed(() => data.articles.slice(0, 4))
         </ul>
       </div>
     </div>
+
+    <CommunityMap />
   </section>
 </template>
 
