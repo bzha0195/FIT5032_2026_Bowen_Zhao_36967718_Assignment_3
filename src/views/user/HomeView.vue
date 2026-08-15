@@ -2,6 +2,8 @@
 import { computed, onMounted } from 'vue'
 import { useAppDataStore } from '@/stores/appData'
 import CommunityMap from '@/components/common/CommunityMap.vue'
+import ActivityBookingCalendar from '@/components/common/ActivityBookingCalendar.vue'
+import HealthAiAssistant from '@/components/common/HealthAiAssistant.vue'
 
 const data = useAppDataStore()
 onMounted(() => data.hydrate())
@@ -17,13 +19,11 @@ const tips = computed(() => data.articles.slice(0, 4))
         <h1>Welcome!</h1>
         <p>Easy Services for Elderly Health and Care.</p>
 
-        <p class="muted">
-          (Reserved for future development)
-        </p>
+        <HealthAiAssistant />
       </div>
 
       <div class="hero-right">
-        <div class="banner-box">(Reserved for future development)</div>
+        <ActivityBookingCalendar />
       </div>
     </div>
 
@@ -60,13 +60,7 @@ const tips = computed(() => data.articles.slice(0, 4))
 .home-wrap { padding: 0; overflow: hidden; }
 .hero { padding: 28px; background: #fff; }
 .hero-left h1 { margin: 0 0 8px; }
-.muted { color: #4b5563; }
-
 .hero-right { display: flex; align-items: center; justify-content: center; }
-.banner-box {
-  width: 100%; max-width: 360px; height: 220px; background: #e5e7eb;
-  border-radius: 8px; display: grid; place-items: center; color: #6b7280; font-weight: 700;
-}
 
 .apps-block { background: #d1d5db; padding: 22px; text-align: center; }
 .apps-row {

@@ -88,6 +88,10 @@ function getActivityTitle(activityId) {
   return data.activities.find((a) => a.id === activityId)?.title || activityId
 }
 
+function getActivityTime(activityId) {
+  return data.activities.find((a) => a.id === activityId)?.time || '-'
+}
+
 function getServiceName(serviceId) {
   return data.services.find((s) => s.id === serviceId)?.name || serviceId
 }
@@ -359,7 +363,7 @@ function confirmDeleteAccount() {
       <h3>My Bookings</h3>
       <ul v-if="myBookings.length">
         <li v-for="b in myBookings" :key="b.id" class="booking-item">
-          <span>{{ getActivityTitle(b.activityId) }} - {{ b.status }} - {{ formatDateTime(b.createdAt) }}</span>
+          <span>{{ getActivityTitle(b.activityId) }} - {{ getActivityTime(b.activityId) }} - {{ b.status }}</span>
           <button class="btn-secondary" @click="unbook(b.activityId)">Unbook</button>
         </li>
       </ul>

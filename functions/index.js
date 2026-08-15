@@ -1,7 +1,9 @@
 const { onRequest } = require('firebase-functions/v2/https')
 const { setGlobalOptions } = require('firebase-functions/v2')
+const { defineSecret } = require('firebase-functions/params')
 
 setGlobalOptions({ region: 'asia-east1', maxInstances: 2 })
+const deepseekApiKey = defineSecret('DEEPSEEK_API_KEY')
 
 function getAdmin() {
   const admin = require('firebase-admin')
@@ -33,5 +35,32 @@ exports.getRatingSummary = onRequest({ cors: true }, async (req, res) => {
     return res.status(200).json({ targetType, targetId, total, average, distribution })
   } catch (error) {
     return res.status(500).json({ error: 'Unable to calculate the rating summary.', detail: error.message })
+  }
+})
+
+exports.askHealthAssistant = onRequest({ cors: true, secrets: [deepseekApiKey] }, async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Only POST requests are allowed.' })
+  const question = String(req.body?.question || '').trim()
+  if (!question || question.length > 1200) return res.status(400).json({ error: 'Provide a health question of up to 1200 characters.' })
+
+  try {
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${deepseekApiKey.value()}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'deepseek-v4-flash',
+        temperature: 0.5,
+        max_tokens: 500,
+        messages: [
+          { role: 'system', content: 'You are a health education assistant for older adults. Give brief, clear, practical general wellbeing information. Do not diagnose, prescribe, or replace a clinician. Advise urgent medical help for emergencies. Reply in the same language as the user.' },
+          { role: 'user', content: question }
+        ]
+      })
+    })
+    const payload = await response.json()
+    if (!response.ok) return res.status(response.status).json({ error: payload.error?.message || 'DeepSeek request failed.' })
+    return res.status(200).json({ answer: payload.choices?.[0]?.message?.content || 'No answer was returned.' })
+  } catch (error) {
+    return res.status(500).json({ error: 'Unable to contact DeepSeek.', detail: error.message })
   }
 })

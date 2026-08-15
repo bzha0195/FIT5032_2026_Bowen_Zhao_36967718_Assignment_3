@@ -10,7 +10,8 @@ const USERS_KEY = 'silver_users'
 const auth = useAuthStore()
 const version = ref(0)
 const sending = ref(false)
-const attachment = ref(null)
+const attachments = ref([])
+const selectedUserIds = ref([])
 const emailForm = reactive({ toName: '', toEmail: '', subject: '', message: '' })
 
 const users = computed(() => {
@@ -20,8 +21,10 @@ const users = computed(() => {
 
 const pendingAdmins = computed(() => users.value.filter((user) => user.role === 'admin-pending'))
 const registeredUsers = computed(() => users.value.filter((user) => user.role !== 'admin-pending'))
+const selectedRecipients = computed(() => registeredUsers.value.filter((user) => selectedUserIds.value.includes(user.id) && user.email))
 
 const userColumns = [
+  { key: 'selection', label: 'Select', searchable: false, sortable: false },
   { key: 'name', label: 'Name' },
   { key: 'role', label: 'Role' },
   { key: 'age', label: 'Age' },
@@ -30,7 +33,7 @@ const userColumns = [
   { key: 'actions', label: 'Email action', searchable: false, sortable: false }
 ]
 
-const userExportColumns = userColumns.filter((column) => column.key !== 'actions')
+const userExportColumns = userColumns.filter((column) => !['selection', 'actions'].includes(column.key))
 
 function refresh() {
   version.value++
@@ -60,25 +63,48 @@ function exportUsers() {
   exportCsv('registered-users.csv', userExportColumns, registeredUsers.value)
 }
 
-function readAttachment(event) {
-  const file = event.target.files?.[0]
-  attachment.value = null
-  if (!file) return
-  if (file.size > 5 * 1024 * 1024) {
-    event.target.value = ''
-    alert('Attachment must be 5 MB or smaller.')
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve({ name: file.name, data: reader.result })
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
+async function readAttachments(event) {
+  const selectedFiles = Array.from(event.target.files || [])
+  const availableSlots = 5 - attachments.value.length
+  event.target.value = ''
+  if (!selectedFiles.length) return
+  if (selectedFiles.length > availableSlots) {
+    alert(`You can attach up to 5 files. ${availableSlots} slot${availableSlots === 1 ? '' : 's'} remaining.`)
     return
   }
-  const reader = new FileReader()
-  reader.onload = () => {
-    attachment.value = { name: file.name, data: reader.result }
+  if (selectedFiles.some((file) => file.size > 5 * 1024 * 1024)) {
+    alert('Each attachment must be 5 MB or smaller.')
+    return
   }
-  reader.readAsDataURL(file)
+  try {
+    attachments.value.push(...await Promise.all(selectedFiles.map(readFile)))
+  } catch {
+    alert('Unable to read one or more selected files.')
+  }
+}
+
+function removeAttachment(index) {
+  attachments.value.splice(index, 1)
+}
+
+function clearAttachments() {
+  attachments.value = []
+  const input = document.getElementById('email-attachment')
+  if (input) input.value = ''
 }
 
 async function sendEmail() {
-  if (!emailForm.toEmail || !emailForm.subject.trim() || !emailForm.message.trim() || !attachment.value) {
-    alert('Recipient, subject, message and attachment are required.')
+  if (!emailForm.toEmail || !emailForm.subject.trim() || !emailForm.message.trim() || !attachments.value.length) {
+    alert('Recipient, subject, message and at least one attachment are required.')
     return
   }
   sending.value = true
@@ -88,16 +114,41 @@ async function sendEmail() {
       toName: emailForm.toName,
       subject: emailForm.subject.trim(),
       message: emailForm.message.trim(),
-      attachment: attachment.value
+      attachments: attachments.value
     })
     alert(result.message)
     if (result.ok) {
       emailForm.subject = ''
       emailForm.message = ''
-      attachment.value = null
-      const input = document.getElementById('email-attachment')
-      if (input) input.value = ''
+      clearAttachments()
     }
+  } catch {
+    alert('Unable to contact the email service. Please try again.')
+  } finally {
+    sending.value = false
+  }
+}
+
+async function sendBulkEmail() {
+  if (!selectedRecipients.value.length || !emailForm.subject.trim() || !emailForm.message.trim()) {
+    alert('Select at least one user and enter a subject and message.')
+    return
+  }
+  sending.value = true
+  try {
+    const results = []
+    for (const user of selectedRecipients.value) {
+      results.push(await sendEmailWithAttachment({
+        toEmail: user.email,
+        toName: user.name,
+        subject: emailForm.subject.trim(),
+        message: emailForm.message.trim(),
+        attachments: attachments.value
+      }))
+    }
+    const delivered = results.filter((result) => result.ok).length
+    alert(`${delivered} of ${selectedRecipients.value.length} emails sent.`)
+    if (delivered === selectedRecipients.value.length) selectedUserIds.value = []
   } catch {
     alert('Unable to contact the email service. Please try again.')
   } finally {
@@ -126,21 +177,22 @@ async function sendEmail() {
       <div class="section-heading"><h4>Registered Users</h4><button class="btn btn-pill-light" @click="exportUsers">Export CSV</button></div>
       <p class="meta">Search each column, click a heading to sort, and use pagination to view up to 10 records at a time.</p>
       <InteractiveDataTable :columns="userColumns" :rows="registeredUsers" empty-message="No registered users found.">
+        <template #cell-selection="{ row }"><input v-model="selectedUserIds" type="checkbox" :value="row.id" :aria-label="`Select ${row.name} for bulk email`" /></template>
         <template #cell-actions="{ row }"><button class="btn btn-pill-light" @click="selectRecipient(row)">Compose email</button></template>
       </InteractiveDataTable>
     </div>
 
     <div id="email-composer" class="block">
-      <h4>Send Email with Attachment</h4>
-      <p class="meta">Select a user above, attach a file, then send through the configured email service.</p>
+      <div class="section-heading"><h4>Send Email with Attachment</h4><span class="selected-count">{{ selectedRecipients.length }} selected for bulk email</span></div>
+      <p class="meta">Select one user to compose an individual email, or tick multiple users and send one message to all selected users.</p>
       <div class="email-grid">
         <label>Recipient name<input v-model="emailForm.toName" /></label>
         <label>Recipient email<input v-model="emailForm.toEmail" type="email" /></label>
         <label class="wide">Subject<input v-model="emailForm.subject" /></label>
         <label class="wide">Message<textarea v-model="emailForm.message" rows="5"></textarea></label>
-        <label class="wide">Attachment<input id="email-attachment" type="file" @change="readAttachment" /><span v-if="attachment">Selected: {{ attachment.name }}</span></label>
+        <label class="wide">Attachments (up to 5)<input id="email-attachment" type="file" multiple @change="readAttachments" /><span>Each file must be 5 MB or smaller.</span><ul v-if="attachments.length" class="attachment-list"><li v-for="(file, index) in attachments" :key="`${file.name}-${index}`"><span>{{ file.name }}</span><button type="button" class="remove-attachment" @click="removeAttachment(index)">Remove</button></li></ul></label>
       </div>
-      <button class="btn btn-pill-dark" :disabled="sending" @click="sendEmail">{{ sending ? 'Sending…' : 'Send email' }}</button>
+      <div class="email-actions"><button class="btn btn-pill-dark" :disabled="sending" @click="sendEmail">{{ sending ? 'Sending…' : 'Send email' }}</button><button class="btn btn-pill-light" :disabled="sending || !selectedRecipients.length" @click="sendBulkEmail">{{ sending ? 'Sending…' : `Send to selected users (${selectedRecipients.length})` }}</button></div>
     </div>
   </section>
 </template>
@@ -162,5 +214,7 @@ async function sendEmail() {
 .email-grid input, .email-grid textarea { border: 1px solid #cbd5e1; border-radius: 7px; padding: 9px; font: inherit; }
 .email-grid textarea { resize: vertical; }
 .wide { grid-column: 1 / -1; }
+.selected-count { color: #475569; font-size: .9rem; }.email-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.attachment-list { display: grid; gap: 5px; margin: 2px 0 0; padding: 0; list-style: none; }.attachment-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #334155; }.remove-attachment { border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; padding: 3px 8px; cursor: pointer; font: inherit; }
 @media (max-width: 760px) { .pending-row { min-width: 700px; } .pending-list { overflow-x: auto; } .email-grid { grid-template-columns: 1fr; } }
 </style>
