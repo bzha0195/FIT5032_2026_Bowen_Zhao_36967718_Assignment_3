@@ -215,7 +215,7 @@ function confirmDeleteAccount() {
 
 <template>
   <section class="wire card settings-wrap">
-    <h2>System Settings (Further functions will be developed and improved in subsequent iterations.)</h2>
+    <h2>System Settings</h2>
 
     <div class="profile-card">
       <template v-if="!editingProfile">

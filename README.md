@@ -1,44 +1,47 @@
-# fit5032-assignment
+# Elderly Health and Care Platform
 
-This template should help get you started developing with Vue 3 in Vite.
+A Vue 3 web application for an elderly health charity. It provides health information, charity activity booking, care-service applications, personal records, and an administrator management area.
 
-## Recommended IDE Setup
+## Implemented Requirements
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### A. Application Development
 
-## Recommended Browser Setup
+- **A.1 Development Stack:** Built with Vue 3, Vite, Vue Router, and Pinia.
+- **A.2 Responsiveness:** Responsive layouts for desktop and smaller screens.
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+### B. Core Web Features
 
-## Customize configuration
+- **B.1 Validation:** Client-side validation for registration, login, password reset, profile, and care-service forms.
+- **B.2 Dynamic Data:** Dynamic Vue/Pinia data rendering with persistent browser storage and Firestore synchronisation.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### C. Security and User Access
 
-## Project Setup
+- **C.1 Authentication:** Registration, login, logout, and password-reset flows.
+- **C.2 Role-Based Access:** Separate elderly-user, administrator, and pending-administrator access controls.
+- **C.3 Rating:** Users can rate articles, activities, and services and view aggregated rating summaries.
+- **C.4 Security:** Input validation, sanitisation, XSS-aware handling, and Firestore security rules.
 
-```sh
-npm install
-```
+### D. Advanced Features
 
-### Compile and Hot-Reload for Development
+- **D.1 External Authentication:** Firebase Authentication with email/password login.
+- **D.2 Email:** EmailJS-based administrator email composer with up to five attachments.
+- **D.3 Interactive Tables:** Searchable, sortable, paginated administrator tables with a 10-row page limit.
+- **D.4 Cloud Deployment:** Production build and cloud-hosting configuration are prepared.
 
-```sh
-npm run dev
-```
+### E. Cloud and Integration Features
 
-### Compile and Minify for Production
+- **E.1 Cloud Function:** Firebase Cloud Function for rating-summary enquiries.
+- **E.2 Geo Location:** AMap nearby service search and route navigation on the home page.
+- **E.3 Accessibility:** Keyboard navigation, visible focus, skip link, semantic labels, and accessible form feedback.
+- **E.4 Export:** CSV export for user, activity-signup, and service-application tables.
 
-```sh
-npm run build
-```
+### F. Innovation Features
 
-### Lint with [ESLint](https://eslint.org/)
+- **F.1 Booking Calendar:** FullCalendar-based activity calendar with booking status indicators.
+- **F.2 Health AI Assistant:** Text-based health and wellbeing questions powered by a DeepSeek API proxy.
+- **F.3 Data Dashboard:** Administrator dashboard for users, activities, services, applications, and ratings.
+- **F.4 Bulk Email:** Select multiple users and send a shared email with up to five attachments.
 
-```sh
-npm run lint
-```
+## Configuration
+
+Create a local `.env.local` file for Firebase, EmailJS, AMap, DeepSeek, and Cloud Function URLs. Do not commit API keys or other secrets.
