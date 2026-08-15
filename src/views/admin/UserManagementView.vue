@@ -1,13 +1,14 @@
 <script setup>
 import { computed, reactive, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { load } from '@/utils/storage'
+import { useAppDataStore } from '@/stores/appData'
+import { firebaseAuth } from '@/utils/firebase'
 import { sendEmailWithAttachment } from '@/utils/email'
 import InteractiveDataTable from '@/components/admin/InteractiveDataTable.vue'
 import { exportCsv } from '@/utils/exportCsv'
 
-const USERS_KEY = 'silver_users'
 const auth = useAuthStore()
+const data = useAppDataStore()
 const version = ref(0)
 const sending = ref(false)
 const attachments = ref([])
@@ -16,7 +17,7 @@ const emailForm = reactive({ toName: '', toEmail: '', subject: '', message: '' }
 
 const users = computed(() => {
   version.value
-  return load(USERS_KEY, [])
+  return data.users.length ? data.users : auth.allUsers
 })
 
 const pendingAdmins = computed(() => users.value.filter((user) => user.role === 'admin-pending'))
@@ -30,7 +31,7 @@ const userColumns = [
   { key: 'age', label: 'Age' },
   { key: 'phone', label: 'Phone' },
   { key: 'email', label: 'Email' },
-  { key: 'actions', label: 'Email action', searchable: false, sortable: false }
+  { key: 'actions', label: 'User actions', searchable: false, sortable: false }
 ]
 
 const userExportColumns = userColumns.filter((column) => !['selection', 'actions'].includes(column.key))
@@ -57,6 +58,34 @@ function selectRecipient(user) {
   emailForm.subject = 'Update from Silver Health Charity'
   emailForm.message = `Hello ${user.name || ''},\n\n`
   document.getElementById('email-composer')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+async function deleteUser(user) {
+  if (user.id === auth.user?.id) {
+    alert('You cannot delete the account currently in use.')
+    return
+  }
+  if (!window.confirm(`Delete ${user.name || user.email}? This permanently removes the account and its related bookings, applications, favorites and ratings.`)) return
+  const endpoint = import.meta.env.VITE_ADMIN_DELETE_USER_FUNCTION_URL
+  if (!endpoint) {
+    alert('Configure VITE_ADMIN_DELETE_USER_FUNCTION_URL after deploying the adminDeleteUser Firebase function.')
+    return
+  }
+  try {
+    const token = await firebaseAuth.currentUser?.getIdToken()
+    if (!token) throw new Error('Please sign in with a Firebase administrator account.')
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ userId: user.id })
+    })
+    const payload = await response.json()
+    if (!response.ok) throw new Error(payload.error || 'Unable to delete the user.')
+    selectedUserIds.value = selectedUserIds.value.filter((id) => id !== user.id)
+    alert(payload.message || 'User deleted.')
+  } catch (error) {
+    alert(error.message || 'Unable to delete the user.')
+  }
 }
 
 function exportUsers() {
@@ -178,7 +207,7 @@ async function sendBulkEmail() {
       <p class="meta">Search each column, click a heading to sort, and use pagination to view up to 10 records at a time.</p>
       <InteractiveDataTable :columns="userColumns" :rows="registeredUsers" empty-message="No registered users found.">
         <template #cell-selection="{ row }"><input v-model="selectedUserIds" type="checkbox" :value="row.id" :aria-label="`Select ${row.name} for bulk email`" /></template>
-        <template #cell-actions="{ row }"><button class="btn btn-pill-light" @click="selectRecipient(row)">Compose email</button></template>
+        <template #cell-actions="{ row }"><span class="actions"><button class="btn btn-pill-light" @click="selectRecipient(row)">Compose email</button><button class="btn btn-danger" @click="deleteUser(row)">Delete user</button></span></template>
       </InteractiveDataTable>
     </div>
 
@@ -209,6 +238,7 @@ async function sendBulkEmail() {
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .empty-pending { padding: 10px 12px; margin: 0; }
 .btn { min-height: 34px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
+.btn-danger { background: #dc2626; border-color: #dc2626; color: #fff; }
 .email-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
 .email-grid label { display: grid; gap: 5px; color: #475569; font-size: .9rem; }
 .email-grid input, .email-grid textarea { border: 1px solid #cbd5e1; border-radius: 7px; padding: 9px; font: inherit; }

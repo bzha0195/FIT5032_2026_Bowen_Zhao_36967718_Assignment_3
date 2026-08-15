@@ -20,9 +20,9 @@ function isBooked(activityId) {
   return data.bookings.some((b) => b.userId === auth.user.id && b.activityId === activityId)
 }
 
-function book(activityId) {
+async function book(activityId) {
   if (!auth.user) return router.push('/auth/login')
-  alert(data.toggleBooking({ userId: auth.user.id, activityId }).message)
+  alert((await data.toggleBooking({ userId: auth.user.id, activityId })).message)
 }
 
 function submitRating(activityId) {

@@ -38,7 +38,7 @@ const calendarOptions = computed(() => ({
   })
 }))
 
-function handleEventClick(info) {
+async function handleEventClick(info) {
   const { activity, booked, full } = info.event.extendedProps
   if (!auth.isLoggedIn) {
     router.push('/auth/login')
@@ -54,7 +54,7 @@ function handleEventClick(info) {
   }
   const action = booked ? 'cancel this booking' : 'book this activity'
   if (!window.confirm(`Would you like to ${action}: ${activity.title}?`)) return
-  const result = data.toggleBooking({ userId: auth.user.id, activityId: activity.id })
+  const result = await data.toggleBooking({ userId: auth.user.id, activityId: activity.id })
   alert(result.message)
 }
 </script>

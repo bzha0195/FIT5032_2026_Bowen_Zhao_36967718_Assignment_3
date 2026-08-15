@@ -2,10 +2,12 @@
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useAppDataStore } from '@/stores/appData'
 import { required } from '@/utils/validators'
 
 const router = useRouter()
 const auth = useAuthStore()
+const appData = useAppDataStore()
 
 const form = reactive({
   account: '',
@@ -27,17 +29,19 @@ function validate() {
   return !errors.account && !errors.password && !errors.role
 }
 
-function submit() {
+async function submit() {
   errors.common = ''
   if (!validate()) return
 
-  const res = auth.login({ account: form.account, password: form.password })
+  const res = await auth.login({ account: form.account, password: form.password })
   if (!res.ok) {
     errors.common = res.message || 'Login failed'
     return
   }
 
   const realRole = auth.user?.role
+  appData.setFirestoreUser(auth.user)
+  appData.migrateLegacyUserData(res.legacyId, auth.user?.id)
 
   if (form.role === 'admin' && !(realRole === 'admin' || realRole === 'admin-pending')) {
     errors.common = 'This account is not an administrator account'
@@ -83,6 +87,8 @@ async function submitFirebase() {
   }
 
   const realRole = auth.user?.role
+  appData.setFirestoreUser(auth.user)
+  appData.migrateLegacyUserData(res.legacyId, auth.user?.id)
 
   if (form.role === 'admin' && !(realRole === 'admin' || realRole === 'admin-pending')) {
     errors.common = 'This account is not an administrator account'

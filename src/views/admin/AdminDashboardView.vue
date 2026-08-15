@@ -1,15 +1,11 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useAppDataStore } from '@/stores/appData'
-import { load } from '@/utils/storage'
 import CloudRatingSummaryPanel from '@/components/admin/CloudRatingSummaryPanel.vue'
 
 const data = useAppDataStore()
-const users = ref([])
-
 onMounted(() => {
   data.hydrate()
-  users.value = load('silver_users', []).filter((user) => user.role !== 'admin-pending')
 })
 
 const activityRows = computed(() => data.activities.map((activity) => ({
@@ -39,7 +35,7 @@ const averageRating = computed(() => {
     <div class="dashboard-heading"><div><h2>Data Dashboard</h2><p>Live operational data from the platform.</p></div></div>
 
     <div class="kpis">
-      <div class="kpi"><p>Total Users</p><strong>{{ users.length }}</strong></div>
+      <div class="kpi"><p>Total Users</p><strong>{{ data.users.filter((user) => user.role !== 'admin-pending').length }}</strong></div>
       <div class="kpi"><p>Activities</p><strong>{{ data.activities.length }}</strong></div>
       <div class="kpi"><p>Services</p><strong>{{ data.services.length }}</strong></div>
       <div class="kpi"><p>Applications</p><strong>{{ totalApplications }}</strong></div>

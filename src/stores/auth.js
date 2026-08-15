@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { load, save } from '@/utils/storage'
 import { hashPassword, sanitizeText } from '@/utils/security'
-import { firebaseAuth } from '@/utils/firebase'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { firebaseAuth, firestoreDb } from '@/utils/firebase'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth'
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 
 const USERS_KEY = 'silver_users'
 const SESSION_KEY = 'silver_session'
@@ -65,6 +66,10 @@ function publicUser(u) {
   }
 }
 
+async function syncFirestoreUser(user) {
+  await setDoc(doc(firestoreDb, 'users', user.id), publicUser(user), { merge: true })
+}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({ user: null }),
   getters: {
@@ -106,22 +111,44 @@ export const useAuthStore = defineStore('auth', {
       if (users.some((u) => normalizePhone(u.phone) === phone)) {
         return { ok: false, message: 'Phone already registered' }
       }
-      if (users.some((u) => normalizeEmail(u.email) === email)) {
-        return { ok: false, message: 'Email already registered' }
+      const existingUser = users.find((u) => normalizeEmail(u.email) === email)
+      if (existingUser) {
+        try {
+          const credential = await signInWithEmailAndPassword(firebaseAuth, email, password)
+          const profileRef = doc(firestoreDb, 'users', credential.user.uid)
+          const profile = await getDoc(profileRef)
+          if (profile.exists()) return { ok: false, message: 'Email already registered' }
+          existingUser.id = credential.user.uid
+          await syncFirestoreUser(existingUser)
+          save(USERS_KEY, users)
+          return { ok: true, user: publicUser(existingUser) }
+        } catch {
+          return { ok: false, message: 'Email already registered. Use the original password or choose another email.' }
+        }
       }
 
+      let credential
       try {
-        await createUserWithEmailAndPassword(firebaseAuth, email, password)
+        credential = await createUserWithEmailAndPassword(firebaseAuth, email, password)
       } catch (e) {
         const code = e?.code || ''
-        if (code === 'auth/email-already-in-use') return { ok: false, message: 'Email already registered in external authentication' }
-        if (code === 'auth/invalid-email') return { ok: false, message: 'Invalid email format for external authentication' }
-        if (code === 'auth/weak-password') return { ok: false, message: 'External authentication requires a stronger password' }
-        return { ok: false, message: code || e?.message || 'External authentication registration failed' }
+        if (code === 'auth/email-already-in-use') {
+          try {
+            credential = await signInWithEmailAndPassword(firebaseAuth, email, password)
+            const profile = await getDoc(doc(firestoreDb, 'users', credential.user.uid))
+            if (profile.exists()) return { ok: false, message: 'Email already registered' }
+          } catch {
+            return { ok: false, message: 'Email already registered in Firebase. Use the original password or choose another email.' }
+          }
+        } else {
+          if (code === 'auth/invalid-email') return { ok: false, message: 'Invalid email format for external authentication' }
+          if (code === 'auth/weak-password') return { ok: false, message: 'External authentication requires a stronger password' }
+          return { ok: false, message: code || e?.message || 'External authentication registration failed' }
+        }
       }
 
       const user = {
-        id: crypto.randomUUID(),
+        id: credential.user.uid,
         name,
         age,
         phone,
@@ -136,10 +163,15 @@ export const useAuthStore = defineStore('auth', {
 
       users.push(user)
       save(USERS_KEY, users)
+      try {
+        await syncFirestoreUser(user)
+      } catch (e) {
+        return { ok: false, message: e?.message || 'Firestore profile creation failed' }
+      }
       return { ok: true, user: publicUser(user) }
     },
 
-    login({ account, phone, password }) {
+    async login({ account, phone, password }) {
       ensureAdmin()
       const users = load(USERS_KEY, [])
 
@@ -156,11 +188,30 @@ export const useAuthStore = defineStore('auth', {
 
       if (!hit) return { ok: false, message: 'Account not found' }
       if (hit.passwordHash !== hashPassword(pwd)) return { ok: false, message: 'Incorrect password' }
+      const legacyId = hit.id
+
+      if (!isValidEmail(hit.email) || hit.email.endsWith('@silver.local')) {
+        const pu = publicUser(hit)
+        this.user = pu
+        save(SESSION_KEY, pu)
+        return { ok: true, user: pu, localOnly: true }
+      }
+
+      try {
+        const credential = await signInWithEmailAndPassword(firebaseAuth, hit.email, pwd)
+        hit.id = credential.user.uid
+        const index = users.findIndex((u) => normalizeEmail(u.email) === normalizeEmail(hit.email))
+        users[index] = hit
+        save(USERS_KEY, users)
+        await syncFirestoreUser(hit)
+      } catch (e) {
+        return { ok: false, message: e?.code === 'auth/invalid-credential' ? 'Firebase password does not match this account' : (e?.message || 'Firebase login failed') }
+      }
 
       const pu = publicUser(hit)
       this.user = pu
       save(SESSION_KEY, pu)
-      return { ok: true, user: pu }
+      return { ok: true, user: pu, legacyId }
     },
 
     async loginWithFirebase({ email, password }) {
@@ -177,10 +228,11 @@ export const useAuthStore = defineStore('auth', {
 
         const users = load(USERS_KEY, [])
         let hit = users.find((u) => normalizeEmail(u.email) === fbEmail)
+        const legacyId = hit?.id || null
 
         if (!hit) {
           hit = {
-            id: crypto.randomUUID(),
+            id: cred.user.uid,
             name: 'Firebase User',
             age: 60,
             phone: '',
@@ -196,10 +248,18 @@ export const useAuthStore = defineStore('auth', {
           save(USERS_KEY, users)
         }
 
+        hit.id = cred.user.uid
+        try {
+          const profile = await getDoc(doc(firestoreDb, 'users', hit.id))
+          if (profile.exists()) Object.assign(hit, profile.data())
+          else await syncFirestoreUser(hit)
+        } catch (e) {
+          return { ok: false, message: e?.message || 'Firestore profile loading failed' }
+        }
         const pu = publicUser(hit)
         this.user = pu
         save(SESSION_KEY, pu)
-        return { ok: true, user: pu }
+        return { ok: true, user: pu, legacyId }
       } catch (e) {
         const code = e?.code || ''
         if (code === 'auth/user-not-found') return { ok: false, message: 'Firebase account not found' }
@@ -212,6 +272,7 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.user = null
       save(SESSION_KEY, null)
+      signOut(firebaseAuth).catch(() => {})
     },
 
     approveAdmin(userId) {
@@ -235,6 +296,7 @@ export const useAuthStore = defineStore('auth', {
 
       users[idx] = target
       save(USERS_KEY, users)
+      if (firebaseAuth.currentUser) updateDoc(doc(firestoreDb, 'users', userId), publicUser(target)).catch(() => {})
       return { ok: true, message: 'Approved successfully' }
     },
 
@@ -259,6 +321,7 @@ export const useAuthStore = defineStore('auth', {
 
       users[idx] = target
       save(USERS_KEY, users)
+      if (firebaseAuth.currentUser) updateDoc(doc(firestoreDb, 'users', userId), publicUser(target)).catch(() => {})
       return { ok: true, message: 'Rejected and changed to standard user' }
     },
 

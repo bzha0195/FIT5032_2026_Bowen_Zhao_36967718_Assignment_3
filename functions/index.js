@@ -38,6 +38,36 @@ exports.getRatingSummary = onRequest({ cors: true }, async (req, res) => {
   }
 })
 
+exports.adminDeleteUser = onRequest({ cors: true }, async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Only POST requests are allowed.' })
+
+  const authorization = String(req.headers.authorization || '')
+  const token = authorization.startsWith('Bearer ') ? authorization.slice(7) : ''
+  const targetUserId = String(req.body?.userId || '').trim()
+  if (!token || !targetUserId) return res.status(400).json({ error: 'Administrator token and target user ID are required.' })
+
+  try {
+    const admin = getAdmin()
+    const caller = await admin.auth().verifyIdToken(token)
+    const callerProfile = await admin.firestore().collection('users').doc(caller.uid).get()
+    if (callerProfile.data()?.role !== 'admin') return res.status(403).json({ error: 'Administrator permission is required.' })
+    if (caller.uid === targetUserId) return res.status(400).json({ error: 'You cannot delete the account currently in use.' })
+
+    const database = admin.firestore()
+    const batch = database.batch()
+    for (const collectionName of ['bookings', 'careApplications', 'favorites', 'ratings']) {
+      const snapshot = await database.collection(collectionName).where('userId', '==', targetUserId).get()
+      snapshot.docs.forEach((item) => batch.delete(item.ref))
+    }
+    batch.delete(database.collection('users').doc(targetUserId))
+    await batch.commit()
+    await admin.auth().deleteUser(targetUserId)
+    return res.status(200).json({ message: 'User account and related data deleted.' })
+  } catch (error) {
+    return res.status(500).json({ error: error.message || 'Unable to delete the user.' })
+  }
+})
+
 exports.askHealthAssistant = onRequest({ cors: true, secrets: [deepseekApiKey] }, async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Only POST requests are allowed.' })
   const question = String(req.body?.question || '').trim()

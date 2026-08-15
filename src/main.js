@@ -4,6 +4,7 @@ import App from './App.vue'
 import router from './router'
 import { useUiStore } from '@/stores/ui'
 import { useAppDataStore } from '@/stores/appData'
+import { useAuthStore } from '@/stores/auth'
 import '@/utils/firebase'
 
 import '@/assets/styles/variables.css'
@@ -21,5 +22,9 @@ ui.hydrate()
 
 const appData = useAppDataStore(pinia)
 appData.hydrate()
+
+const auth = useAuthStore(pinia)
+auth.hydrate()
+appData.setFirestoreUser(auth.user)
 
 app.mount('#app')
