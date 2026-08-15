@@ -41,7 +41,3 @@ A Vue 3 web application for an elderly health charity. It provides health inform
 - **F.2 Health AI Assistant:** Text-based health and wellbeing questions powered by a DeepSeek API proxy.
 - **F.3 Data Dashboard:** Administrator dashboard for users, activities, services, applications, and ratings.
 - **F.4 Bulk Email:** Select multiple users and send a shared email with up to five attachments.
-
-## Configuration
-
-Create a local `.env.local` file for Firebase, EmailJS, AMap, DeepSeek, and Cloud Function URLs. Do not commit API keys or other secrets.
