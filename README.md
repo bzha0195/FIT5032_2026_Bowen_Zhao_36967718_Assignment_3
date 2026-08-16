@@ -31,7 +31,7 @@ A Vue 3 web application for an elderly health charity. It provides health inform
 ### E. Cloud and Integration Features
 
 - **E.1 Cloud Function:** Firebase Cloud Function for rating-summary enquiries.
-- **E.2 Geo Location:** AMap nearby service search and route navigation on the home page.
+- **E.2 Geo Location:** Mapbox nearby service search and route navigation on the home page.
 - **E.3 Accessibility:** Keyboard navigation, visible focus, skip link, semantic labels, and accessible form feedback.
 - **E.4 Export:** CSV export for user, activity-signup, and service-application tables.
 
@@ -41,3 +41,5 @@ A Vue 3 web application for an elderly health charity. It provides health inform
 - **F.2 Health AI Assistant:** Text-based health and wellbeing questions powered by a DeepSeek API proxy.
 - **F.3 Data Dashboard:** Administrator dashboard for users, activities, services, applications, and ratings.
 - **F.4 Bulk Email:** Select multiple users and send a shared email with up to five attachments.
+
+The application can be accessed at: [https://fit5032-2026-bowen-zhao-36967718-assignment-3.pages.dev/](https://fit5032-2026-bowen-zhao-36967718-assignment-3.pages.dev/)
