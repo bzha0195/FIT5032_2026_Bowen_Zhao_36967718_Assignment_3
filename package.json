@@ -15,6 +15,7 @@
   "dependencies": {
     "@fullcalendar/vue3": "^7.0.2",
     "firebase": "^12.17.1",
+    "mapbox-gl": "^3.28.1",
     "pinia": "^4.0.2",
     "temporal-polyfill": "^1.0.4",
     "vue": "^3.5.38",
